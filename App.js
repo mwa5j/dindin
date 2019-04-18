@@ -30,7 +30,7 @@ export default class App extends Component {
   render() {
     return (
       <Router>
-        <Scene key="root">
+        <Scene key="root" headerLayoutPreset="center">
           <Scene
             key="splash" 
             component={Splash}
