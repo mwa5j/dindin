@@ -1,9 +1,9 @@
-import React from 'react'
+import React, {Component} from 'react'
 import { StyleSheet, Text, TextInput, View, Button } from 'react-native'
 import {Actions} from 'react-native-router-flux'
 import firebase from 'firebase'
 
-export default class Login extends React.Component {
+export default class SignUp extends Component {
     constructor(props){
         super(props)
         this.state = {
@@ -14,15 +14,15 @@ export default class Login extends React.Component {
         }
     }
 
-    handleLogin = () => {
+    handleSignUp = () => {
         this.setState({
             errorMessage: "",
             loading: true,
         })
 
         const {email, password} = this.state
-        firebase.auth().signInWithEmailAndPassword(email, password)
-            .then( () => {
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then(() => {
                 this.setState({
                     errorMessage: "",
                     loading: false,
@@ -40,7 +40,7 @@ export default class Login extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text>Login</Text>
+                <Text>Sign Up</Text>
                 <TextInput
                     style={styles.textInput}
                     autoCapitalize="none"
@@ -56,11 +56,10 @@ export default class Login extends React.Component {
                     onChangeText={password => this.setState({ password })}
                     value={this.state.password}
                 />
-                <Button title="Login" onPress={this.handleLogin} />
+                <Button title="Sign Up" onPress={this.handleSignUp} />
                 <Button
-                    style={styles.button}
-                    title="Don't have an account? Sign Up"
-                    onPress={() => Actions.replace('signup')}
+                    title="Already have an account? Login"
+                    onPress={() => Actions.replace("login")}
                 />
             </View>
         )
@@ -79,5 +78,5 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         borderWidth: 1,
         marginTop: 8
-    },
+    }
 })

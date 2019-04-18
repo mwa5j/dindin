@@ -13,7 +13,7 @@ export default class Splash extends Component {
     }
 
     handlePress = () => {
-        Actions.home()
+        Actions.signup()
     }
     
     render() {
