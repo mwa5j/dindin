@@ -12,7 +12,7 @@ export default class App extends Component {
   constructor(props){
     super(props)
     this.state = {
-      loggedIn: false,
+      user: null,
     }
   }
   
@@ -27,6 +27,13 @@ export default class App extends Component {
     })
   }
 
+  componentDidMount(){
+    const curr_user = firebase.auth().currentUser
+    this.setState({
+      user: curr_user,
+    })
+  }
+
   render() {
     return (
       <Router>
@@ -35,13 +42,13 @@ export default class App extends Component {
             key="splash" 
             component={Splash}
             title="Welcome"
-            initial={!this.state.loggedIn}
+            initial={firebase.auth().currentUser == null}
           />
           <Scene
             key="home"
             component={Home}
             title="Home"
-            initial={this.state.loggedIn}
+            initial={firebase.auth().currentUser != null}
           />
           <Scene
             key="login"

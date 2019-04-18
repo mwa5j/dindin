@@ -1,12 +1,15 @@
 import React, {Component} from 'react'
-import { StyleSheet, Text, TextInput, View, Button } from 'react-native'
+import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native'
 import {Actions} from 'react-native-router-flux'
 import firebase from 'firebase'
+
+const splash_pic =  '../../static/DINDIN/Design/splashVariations/Splash.png'
 
 export default class SignUp extends Component {
     constructor(props){
         super(props)
         this.state = {
+            name: "",
             email: "",
             password: "",
             errorMessage: "",
@@ -20,18 +23,25 @@ export default class SignUp extends Component {
             loading: true,
         })
 
-        const {email, password} = this.state
+        const {name, email, password} = this.state
         firebase.auth().createUserWithEmailAndPassword(email, password)
             .then(() => {
-                this.setState({
-                    errorMessage: "",
-                    loading: false,
+                var user = firebase.auth().currentUser;
+                user.updateProfile({
+                    displayName: name,
+                    photoURL: '../../static/DINDIN/Design/Sliced/profile.png'
                 })
-                Actions.pop()
+                .then(() => {
+                    this.setState({
+                        errorMessage: "",
+                        loading: false,
+                    })
+                    Actions.reset('home')
+                })
             })
             .catch( () => {
                 this.setState({
-                    errorMessage: "Error",
+                    errorMessage: "Sign Up failed, invalid Username or Password",
                     loading: false,
                 })
             })
@@ -40,7 +50,14 @@ export default class SignUp extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text>Sign Up</Text>
+                <Text style={styles.headerText}>Sign Up</Text>
+                <TextInput
+                    style={styles.textInput}
+                    autoCapitalize="none"
+                    placeholder="First and Last name"
+                    onChangeText={name => this.setState({ name })}
+                    value={this.state.name}
+                 />
                 <TextInput
                     style={styles.textInput}
                     autoCapitalize="none"
@@ -56,11 +73,21 @@ export default class SignUp extends Component {
                     onChangeText={password => this.setState({ password })}
                     value={this.state.password}
                 />
-                <Button title="Sign Up" onPress={this.handleSignUp} />
-                <Button
-                    title="Already have an account? Login"
+                <TouchableOpacity
+                    style={styles.submitButton}
+                    onPress={this.handleSignUp}
+                >
+                    <Text style={styles.submitText}>Sign Up</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.submitButton}
                     onPress={() => Actions.replace("login")}
-                />
+                >
+                    <Text style={styles.submitText}>Already have an account? Log in</Text>
+                </TouchableOpacity>
+                <Text style={styles.errorText}>
+                    {this.state.errorMessage != '' ? this.state.errorMessage : ""}
+                </Text>
             </View>
         )
     }
@@ -70,13 +97,37 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: 'white',
+        paddingBottom: 40,
     },
     textInput: {
         height: 40,
         width: '90%',
         borderColor: 'gray',
         borderWidth: 1,
-        marginTop: 8
+        marginTop: 10
+    },
+    submitButton: {
+        marginTop: 10,
+        paddingTop: 10,
+        paddingBottom: 10,
+        backgroundColor: '#4286f4',
+        width: '75%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    submitText: {
+        textAlign: 'center',
+        fontWeight: 'bold',
+        color: 'white',
+    },
+    headerText: {
+        fontSize: 25,
+    },
+    errorText: {
+        marginTop: 10,
+        color: 'red',
+        fontWeight: 'bold',
     }
 })
