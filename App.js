@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
 import { Router, Scene, Actions } from 'react-native-router-flux';
 import firebase from 'firebase'
 
@@ -7,7 +6,19 @@ import Splash from './components/Splash'
 import Home from './components/Home'
 import Login from './components/Login'
 import SignUp from './components/SignUp'
+import Invite from './components/Invite'
+
 import CreateEvent from './components/CreateEvent'
+import { YellowBox } from 'react-native';
+import _ from 'lodash';
+
+YellowBox.ignoreWarnings(['Setting a timer']);
+const _console = _.clone(console);
+console.warn = message => {
+  if (message.indexOf('Setting a timer') <= -1) {
+    _console.warn(message);
+  }
+};
 
 export default class App extends Component {
   constructor(props){
@@ -72,6 +83,11 @@ export default class App extends Component {
           <Scene
             key='createevent'
             component={CreateEvent}
+            title="DinDin"
+          />
+          <Scene
+            key='invite'
+            component={Invite}
             title="DinDin"
           />
 
