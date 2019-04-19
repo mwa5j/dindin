@@ -7,7 +7,7 @@ import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
 const time = new Date()
 const hours = time.getHours() > 12 ? time.getHours() - 12 : time.getHours()
 const minutes = time.getMinutes()
-const ampm = time.getHours() > 12 ? true : false
+const ampm = time.getHours() > 12 ? false : true
 
 export default class createEvent extends React.Component{
     constructor(props){
@@ -40,9 +40,10 @@ export default class createEvent extends React.Component{
                     backgroundColor={'#4286f4'}
                     time={new Date()}
                     onChange={(time) => {
+                        console.log("Changing state")
                         this.setState({
                             hour: time.hour,
-                            min: time.minute,
+                            minute: time.minute,
                             ampm: time.ampm
                         })
                     }}

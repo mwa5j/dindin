@@ -20,7 +20,7 @@ export default class Splash extends Component {
     render() {
         return (
             <ImageBackground source={require(splash_pic)} style={styles.imageBackground} activeOpacity={1}>
-                <TouchableHighlight style={styles.buttonContainer} onPress={this.handlePress}>
+                <TouchableHighlight style={styles.buttonContainer} onPress={this.handlePress} underlayColor={'#63c9f4'}>
                     <Text style={styles.button}>{this.state.displayText}</Text>
                 </TouchableHighlight>
             </ImageBackground>

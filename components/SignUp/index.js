@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, TextInput, View , TouchableOpacity, Keyboard } from 'react-native'
 import {Actions} from 'react-native-router-flux'
 import firebase from 'firebase'
 
@@ -10,6 +10,7 @@ export default class SignUp extends Component {
         super(props)
         this.state = {
             name: "",
+            number: "",
             email: "",
             password: "",
             errorMessage: "",
@@ -23,28 +24,39 @@ export default class SignUp extends Component {
             loading: true,
         })
 
-        const {name, email, password} = this.state
+        Keyboard.dismiss()
+
+        const {name, number, email, password} = this.state
         firebase.auth().createUserWithEmailAndPassword(email, password)
             .then(() => {
+                console.log("Creating auth user")
                 var user = firebase.auth().currentUser;
                 user.updateProfile({
                     displayName: name,
-                    photoURL: '../../static/DINDIN/Design/Sliced/profile.png'
                 })
                 .then(() => {
-                    this.setState({
-                        errorMessage: "",
-                        loading: false,
+                    var key = firebase.auth().currentUser.uid;
+                    Actions.replace("home")
+                    firebase.database().ref('users').push({
+                        name,
+                        number,
+                        key,
+                    }).then((data)=>{
+                        console.log('data: ', data)
+                    }).catch((error) => {
+                        console.log('error: ', error)
                     })
-                    Actions.reset('home')
                 })
             })
-            .catch( () => {
+            .catch( (error) => {
                 this.setState({
-                    errorMessage: "Sign Up failed, invalid Username or Password",
+                    errorMessage: error.message,
                     loading: false,
                 })
             })
+        
+
+        
     }
 
     render() {
@@ -53,10 +65,18 @@ export default class SignUp extends Component {
                 <Text style={styles.headerText}>Sign Up</Text>
                 <TextInput
                     style={styles.textInput}
-                    autoCapitalize="none"
+                    autoCapitalize="words"
                     placeholder="First and Last name"
                     onChangeText={name => this.setState({ name })}
                     value={this.state.name}
+                 />
+                <TextInput
+                    style={styles.textInput}
+                    autoCapitalize="none"
+                    keyboardType="numeric"
+                    placeholder="Phone number"
+                    onChangeText={number => this.setState({ number })}
+                    value={this.state.number}
                  />
                 <TextInput
                     style={styles.textInput}
@@ -88,7 +108,7 @@ export default class SignUp extends Component {
                 <Text style={styles.errorText}>
                     {this.state.errorMessage != '' ? this.state.errorMessage : ""}
                 </Text>
-            </View>
+            </View >
         )
     }
 }
@@ -96,10 +116,11 @@ export default class SignUp extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        overflow: 'hidden',
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'white',
-        paddingBottom: 40,
+        // paddingBottom: 40,
     },
     textInput: {
         height: 40,

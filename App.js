@@ -38,13 +38,13 @@ export default class App extends Component {
         messagingSenderId: "901896786005"
     })
 
-    firebase.auth().signInWithEmailAndPassword("matt@mail.com", "password")
-      .then(() => {
-        Actions.home()
-      })
-      .catch(() =>{
-        Actions.login()
-      })
+    // firebase.auth().signInWithEmailAndPassword("matt@mail.com", "password")
+    //   .then(() => {
+    //     Actions.home()
+    //   })
+    //   .catch(() =>{
+    //     Actions.login()
+    //   })
   }
 
   componentDidMount(){
@@ -57,18 +57,18 @@ export default class App extends Component {
   render() {
     return (
       <Router>
-        <Scene key="root" headerLayoutPreset="center">
+        <Scene key="root" headerLayoutPreset="center"> 
           <Scene
             key="splash" 
             component={Splash}
             title="Welcome"
-            initial={firebase.auth().currentUser == null}
+            // initial={firebase.auth().currentUser == null}
           />
           <Scene
             key="home"
             component={Home}
             title="Home"
-            initial={firebase.auth().currentUser != null}
+            // initial={firebase.auth().currentUser != null}
           />
           <Scene
             key="login"
@@ -87,9 +87,14 @@ export default class App extends Component {
           />
           <Scene
             key='invite'
+            onBack={ () => {
+              Actions.refresh()
+              Actions.pop()
+            }}
             component={Invite}
             title="DinDin"
-          />
+            intitial={true}
+          /> 
 
         </Scene>
       </Router>
