@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {StyleSheet, View, ImageBackground, TouchableHighlight, Text} from 'react-native'
 import {Actions} from 'react-native-router-flux'
+import firebase from 'firebase'
 
 const splash_pic =  '../../static/DINDIN/Design/splashVariations/Splash3.png'
 
@@ -13,7 +14,7 @@ export default class Splash extends Component {
     }
 
     handlePress = () => {
-        Actions.signup()
+        Actions.login()
     }
     
     render() {

@@ -21,19 +21,23 @@ export default class SignUp extends Component {
         })
 
         const {email, password} = this.state
-        firebase.auth().signInWithEmailAndPassword(email, password)
-            .then( () => {
-                this.setState({
-                    errorMessage: "",
-                    loading: false,
-                })
-                Actions.reset('home')
-            })
-            .catch( () => {
-                this.setState({
-                    errorMessage: "Incorrect Username or Password",
-                    loading: false,
-                })
+        
+        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(() => {
+                firebase.auth().signInWithEmailAndPassword(email, password)
+                    .then( () => {
+                        this.setState({
+                            errorMessage: "",
+                            loading: false,
+                        })
+                        Actions.reset('home')
+                    })
+                    .catch( error => {
+                        this.setState({
+                            errorMessage: error.message,
+                            loading: false,
+                        })
+                    })
             })
     }
 

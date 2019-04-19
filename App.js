@@ -1,12 +1,13 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import { Router, Scene } from 'react-native-router-flux';
+import { Router, Scene, Actions } from 'react-native-router-flux';
 import firebase from 'firebase'
 
 import Splash from './components/Splash'
 import Home from './components/Home'
 import Login from './components/Login'
 import SignUp from './components/SignUp'
+import CreateEvent from './components/CreateEvent'
 
 export default class App extends Component {
   constructor(props){
@@ -25,6 +26,14 @@ export default class App extends Component {
         storageBucket: "dindin-4d31d.appspot.com",
         messagingSenderId: "901896786005"
     })
+
+    firebase.auth().signInWithEmailAndPassword("matt@mail.com", "password")
+      .then(() => {
+        Actions.home()
+      })
+      .catch(() =>{
+        Actions.login()
+      })
   }
 
   componentDidMount(){
@@ -60,28 +69,14 @@ export default class App extends Component {
             component={SignUp}
             title="Sign Up"
           />
+          <Scene
+            key='createevent'
+            component={CreateEvent}
+            title="DinDin"
+          />
 
         </Scene>
       </Router>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});

@@ -1,57 +1,62 @@
 import React, {Component} from 'react'
-import {View, Text, Image} from 'react-native'
+import {StyleSheet, View, Text, Image, TouchableOpacity} from 'react-native'
 import firebase from 'firebase'
+
+import Card from '../Card'
+import DateEntry from '../DateEntry'
 
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 const months = ["January","February","March","April","May","June","July", "August","September","October","November","December"];
+
 const d = new Date()
-const day_index = d.getDay()
+const dayIndex = d.getDay()
 const date = d.getDate()
-const month_index = d.getMonth()
-
-
-
+const monthIndex = d.getMonth()
 
 export default class Home extends Component {
     constructor(props){
         super(props)
         this.state = {
             numPending: 0,
-            pending: []
+            dinners: []
         }
     }
-    
-    nextDay = (day_index) => {
 
-    }
+    componentDidMount(){
+        firebase.database().ref('dinners').once('value', snapshot => {
+            const dinnersObject = snapshot.val()
 
-    nextDate = (date) => {
-
-    }
-
-    nextMonth = (month_index) => {
-
+            if(dinnersObject){
+                const dinnersList = Object.keys(dinnersObject).map(key => ({
+                    ...dinnersObject[key],
+                    uid: key,
+                }))
+                
+                this.setState({dinners: dinnersList})
+            }
+        })
     }
 
     render() {
         return (
             <View>
                 <View>
-                    <Text>Welcome {firebase.auth().currentUser.displayName}</Text>
+                    <Text style={styles.headerText}>Welcome {firebase.auth().currentUser.displayName}</Text>
                 </View>
                 <View>
-                    <Text>Pending ({this.state.numPending})</Text>
+                    <Text style={styles.headerText}>Pending ({this.state.numPending})</Text>
                 </View>
-                <View>
-                    <Text>{days[day_index]} {date} {months[month_index]}</Text>
-                </View>
-                <View>
-                    <Text>{days[day_index + 1]} {date + 1} {months[month_index]}</Text>
-                </View>
-                <View>
-                    <Text>{days[day_index + 2]} {date + 2} {months[month_index]}</Text>
-                </View>
+                <DateEntry day={days[dayIndex]} date={date} month={months[monthIndex]}/>
+                
             </View>
         )
     }
 }
+
+const styles = StyleSheet.create({
+    headerText: {
+        fontSize: 18,
+        marginTop: 10,
+        marginLeft: 10,
+    }
+})
