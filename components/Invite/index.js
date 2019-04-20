@@ -16,7 +16,6 @@ export default class Invite extends React.Component {
     componentDidMount(){
         firebase.database().ref('users').once('value', snapshot => {
             const usersObject = snapshot.val()
-            console.log(usersObject)
             if(usersObject){
                 const usersList = Object.keys(usersObject).map(key => ({
                     ...usersObject[key],
@@ -69,22 +68,27 @@ export default class Invite extends React.Component {
         const {day, date, month, hour, minute, ampm, address} = this.props
         const status = 'pending'
 
-        firebase.database().ref('dinners').push({
-            user,
-            invitedUids,
-            day,
-            date,
-            month,
-            hour,
-            minute,
-            ampm,
-            address,
-            status
-        }).then((data) => {
-            console.log('data: ', data)
-        }).catch((error) => {
-            console.log('error', error)
-        })
+        console.log(invitedUids)
+
+        for(var i = 0; i < invitedUids.length; i++){
+            const indUid = invitedUids[i]
+
+            const ref = firebase.database().ref('dinners').push({
+                user,
+                indUid,
+                day,
+                date,
+                month,
+                hour,
+                minute,
+                ampm,
+                address,
+                status
+            })
+            const key = ref.key
+
+            console.log(key)
+        }
 
         Actions.replace('home')
 

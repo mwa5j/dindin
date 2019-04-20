@@ -19,23 +19,29 @@ export default class Home extends Component {
     constructor(props){
         super(props)
         this.state = {
-            numPending: 0,
-            dinners: []
+            dinners: [],
+            pending: [],
         }
     }
 
     componentDidMount(){
         firebase.database().ref('dinners').on('value', snapshot => {
             const dinnersObject = snapshot.val()
+            const parsedDinners = []
 
             if(dinnersObject){
                 const dinnersList = Object.keys(dinnersObject).map(key => ({
                     ...dinnersObject[key],
                     key: key,
                 }))
-                
-                this.setState({dinners: dinnersList})
-                console.log(dinnersList)
+
+                for(var i = 0; i < dinnersList.length; i++){
+                    if(dinnersList[i].status == "pending"){
+                        parsedDinners.push(dinnersList[i])
+                    }
+                }
+
+                this.setState({dinners: parsedDinners})
             }
         })
     }
@@ -44,35 +50,28 @@ export default class Home extends Component {
         return(
             <View>
                 <Card 
-                key={item.key}
-                sender={item.user}
-                day={item.day}
-                date={item.date}
-                month={item.month}
-                hour={item.hour}
-                minute={item.minute}
-                ampm={item.ampm}
-                address={item.address}
+                    uniqueID={item.key}
+                    sender={item.user}
+                    day={item.day}
+                    date={item.date}
+                    month={item.month}
+                    hour={item.hour}
+                    minute={item.minute}
+                    ampm={item.ampm}
+                    address={item.address}
                 />
             </View>
         )
     }
 
     render() {
-        const eventButton = 
-            <TouchableOpacity style={styles.buttonContainer} onPress={() => {
-                Actions.createevent({day: this.props.day, date: this.props.date, month: this.props.month})
-            }}>
-                <Image source={require(eventButtonPic)}/>
-            </TouchableOpacity>
-
         return (
             <View>
                 <View>
                     {/* <Text style={styles.headerText}>Welcome {firebase.auth().currentUser.displayName}</Text> */}
                 </View>
-                <View >
-                    <Text style={styles.headerText}>Pending ({this.state.numPending})</Text>
+                <View>
+                    <Text style={styles.headerText}>Pending ({0})</Text>
                     {this.state.dinners && this.state.dinners.length > 0 &&
                         <FlatList
                             data={this.state.dinners}
@@ -87,9 +86,9 @@ export default class Home extends Component {
                 <View>
                     <DateEntry day={days[dayIndex]} date={date + 1} month={months[monthIndex]} dinners={this.state.dinners}/>
                 </View>
-                <View>
+                {/* <View>
                     <DateEntry day={days[dayIndex]} date={date + 1} month={months[monthIndex]} dinners={[]}/>
-                </View>
+                </View> */}
             </View>
         )
     }

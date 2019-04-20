@@ -1,48 +1,33 @@
 import React, {Component} from 'react'
-import {StyleSheet, View, Text, Image} from 'react-native'
+import {StyleSheet, View, Text, TouchableHighlight} from 'react-native'
+import firebase from 'firebase'
 
 const photo = '../../static/DINDIN/Sliced/profile.png'
-
-/*
-Pass in:
-- Key
-- Sender
-- Day
-- Date
-- Month
-- Hour
-- Minute
-- ampm
-- address
-- UID
-*/
 
 export default class Card extends Component {
     constructor(props){
         super(props)
     }
 
-    onAccept = () => {
-        // update status in firebase
-    }
-
-    onReject = () => {
-        // delete item in firebase
-    }
-
     render(){
+
         return(
             <View style={styles.container}>
                 <View>
-                    <Text style={styles.cardText}>{this.props.sender}</Text>
+                    <Text style={styles.cardText}>{this.props.address} {this.props.uniqueID}</Text>
                     <Text style={styles.cardText}>
-                        {this.props.day} {this.props.date} {this.props.month} - 
-                        {this.props.hour}:{this.props.minute < 10 ? 0 : ''}{this.props.minute} 
-                        {this.props.ampm ? "pm" : "am"}
+                        {this.props.day} {this.props.date} {this.props.month} - {this.props.hour}:{this.props.minute < 10 ? 0 : ''}{this.props.minute} {this.props.ampm ? "pm" : "am"}
                     </Text>
                 </View>
                 <View style={styles.buttonCont}>
-                    <Text style={styles.accept}>Accept</Text>
+                    <TouchableHighlight style={styles.acceptContainer} onPress={() => {
+                        console.log(this.props.uniqueID)
+                        firebase.database().ref('dinners/' + this.props.uniqueID).update({
+                            status: 'accept'
+                        })
+                    }}>
+                        <Text style={styles.accept}>Accept</Text>
+                    </TouchableHighlight>
                     <Text style={styles.reject}>Decline</Text>
                 </View>
             </View>
@@ -72,10 +57,15 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 10,
     },
+    acceptContainer: {
+        width: '30%',
+        alignItems: 'center',
+        backgroundColor: 'green',
+        padding: 10
+    },
     accept: {
         backgroundColor: 'green',
         color: 'white',
-        width: '30%',
         textAlign: 'center',
     },
     reject: {
