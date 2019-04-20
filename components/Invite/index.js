@@ -1,6 +1,7 @@
 import React from 'react'
 import {StyleSheet, View, Text, FlatList, TouchableHighlight} from 'react-native'
 import firebase from 'firebase'
+import {Actions} from 'react-native-router-flux'
 
 export default class Invite extends React.Component {
     constructor(props){
@@ -15,6 +16,7 @@ export default class Invite extends React.Component {
     componentDidMount(){
         firebase.database().ref('users').once('value', snapshot => {
             const usersObject = snapshot.val()
+            console.log(usersObject)
             if(usersObject){
                 const usersList = Object.keys(usersObject).map(key => ({
                     ...usersObject[key],
@@ -56,16 +58,35 @@ export default class Invite extends React.Component {
     }
 
     handleSubmit = () => {
-        var invited = [...this.state.invited]
-        var invitedUids = []
+        const user = firebase.auth().currentUser.uid
+        const invited = [...this.state.invited]
+        const invitedUids = []
         for(var i = 0; i < invited.length; i++){
             invitedUids.push(this.state.invited[i].key)
         }
 
         // push event to firebase
         const {day, date, month, hour, minute, ampm, address} = this.props
-        const invited = this.state.invited
-        
+        const status = 'pending'
+
+        firebase.database().ref('dinners').push({
+            user,
+            invitedUids,
+            day,
+            date,
+            month,
+            hour,
+            minute,
+            ampm,
+            address,
+            status
+        }).then((data) => {
+            console.log('data: ', data)
+        }).catch((error) => {
+            console.log('error', error)
+        })
+
+        Actions.replace('home')
 
     }
 

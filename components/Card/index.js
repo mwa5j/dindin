@@ -3,17 +3,23 @@ import {StyleSheet, View, Text, Image} from 'react-native'
 
 const photo = '../../static/DINDIN/Sliced/profile.png'
 
+/*
+Pass in:
+- Key
+- Sender
+- Day
+- Date
+- Month
+- Hour
+- Minute
+- ampm
+- address
+- UID
+*/
+
 export default class Card extends Component {
     constructor(props){
         super(props)
-        this.state = {
-            sendName: "Laura Brown",
-            recName: "",
-            date: "Sunday 18 April",
-            time: "8:00 pm",
-            location: null,
-            status: "pending",
-        }
     }
 
     onAccept = () => {
@@ -28,8 +34,12 @@ export default class Card extends Component {
         return(
             <View style={styles.container}>
                 <View>
-                    <Text style={styles.cardText}>{this.state.sendName}</Text>
-                    <Text style={styles.cardText}>{this.state.date} - {this.state.time}</Text>
+                    <Text style={styles.cardText}>{this.props.sender}</Text>
+                    <Text style={styles.cardText}>
+                        {this.props.day} {this.props.date} {this.props.month} - 
+                        {this.props.hour}:{this.props.minute < 10 ? 0 : ''}{this.props.minute} 
+                        {this.props.ampm ? "pm" : "am"}
+                    </Text>
                 </View>
                 <View style={styles.buttonCont}>
                     <Text style={styles.accept}>Accept</Text>
@@ -43,8 +53,8 @@ export default class Card extends Component {
 const styles = StyleSheet.create({
     container: {
         justifyContent: 'space-around',
-        marginRight: 20,
-        marginLeft: 20,
+        marginRight: 10,
+        marginLeft: 10,
         width: 'auto',
         alignItems: 'stretch',
         borderStyle: 'solid',
@@ -58,7 +68,7 @@ const styles = StyleSheet.create({
     buttonCont: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        width: '100%',
+        width: 300,
         marginTop: 10,
         marginBottom: 10,
     },

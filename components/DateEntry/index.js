@@ -2,6 +2,8 @@ import React from 'react'
 import {StyleSheet, View, Text, Image, TouchableOpacity, FlatList} from 'react-native'
 import {Actions} from 'react-native-router-flux'
 
+import Card from '../Card'
+
 const eventButtonPic = '../../static/DINDIN/Sliced/addNewEvent.png'
 
 export default class DateEntry extends React.Component {
@@ -12,6 +14,25 @@ export default class DateEntry extends React.Component {
         }
     }
 
+    _renderItem = (item) => {
+        return(
+            <View>
+                <Card 
+                    key={item.key}
+                    sender={item.user}
+                    day={item.day}
+                    date={item.date}
+                    month={item.month}
+                    hour={item.hour}
+                    minute={item.minute}
+                    ampm={item.ampm}
+                    address={item.address}
+                />
+            </View>
+        )
+    }
+
+
     render(){
         const eventButton = 
             <TouchableOpacity style={styles.buttonContainer} onPress={() => {
@@ -20,22 +41,21 @@ export default class DateEntry extends React.Component {
                 <Image source={require(eventButtonPic)}/>
             </TouchableOpacity>
 
-        // const dinnerList = 
-        //     <FlatList
-        //         data={this.state.dinners}
-        //         renderItem={({item}) =>
-        //             <Text>{item.status}</Text>
-        //         }
-        //     />
+        const dinnerList = 
+            <FlatList
+                data={this.props.dinners}
+                renderItem={({item}) => this._renderItem(item)}
+                horizontal={true}
+                ListFooterComponent={eventButton}
+            />
 
         return(
             <View>
-                {/* {this.state.dinners && this.state.dinners.length > 0
+                <Text style={styles.titleText}>{this.props.day} {this.props.date} {this.props.month }</Text>
+                {this.props.dinners && this.props.dinners.length > 0
                     ? dinnerList
                     : eventButton
-                } */}
-                <Text style={styles.titleText}>{this.props.day} {this.props.date} {this.props.month }</Text>
-                {eventButton}
+                }
             </View>
         )
     }
@@ -48,7 +68,7 @@ styles = StyleSheet.create({
         marginTop: 10,
     },
     buttonContainer: {
-        marginTop: 10,
+        marginTop: 28,
         width: '100%',
         alignItems: 'center'
     }

@@ -57,7 +57,13 @@ export default class App extends Component {
   render() {
     return (
       <Router>
-        <Scene key="root" headerLayoutPreset="center"> 
+        <Scene key="root" headerLayoutPreset="center">
+          <Scene
+            key="home"
+            component={Home}
+            title="Home"
+            // initial={firebase.auth().currentUser != null}
+          />
           <Scene
             key="splash" 
             component={Splash}
@@ -65,11 +71,16 @@ export default class App extends Component {
             // initial={firebase.auth().currentUser == null}
           />
           <Scene
-            key="home"
-            component={Home}
-            title="Home"
-            // initial={firebase.auth().currentUser != null}
-          />
+            key='invite'
+            onBack={ () => {
+              Actions.refresh()
+              Actions.pop()
+            }}
+            component={Invite}
+            title="DinDin"
+            // intitial={true}
+          />  
+          
           <Scene
             key="login"
             component={Login}
@@ -85,16 +96,7 @@ export default class App extends Component {
             component={CreateEvent}
             title="DinDin"
           />
-          <Scene
-            key='invite'
-            onBack={ () => {
-              Actions.refresh()
-              Actions.pop()
-            }}
-            component={Invite}
-            title="DinDin"
-            intitial={true}
-          /> 
+          
 
         </Scene>
       </Router>
