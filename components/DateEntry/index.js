@@ -52,6 +52,7 @@ export default class DateEntry extends React.Component {
                     minute={item.minute}
                     ampm={item.ampm}
                     address={item.address}
+                    status={item.status}
                 />
             </View>
         )
@@ -106,7 +107,7 @@ styles = StyleSheet.create({
         marginTop: 10,
     },
     buttonContainer: {
-        marginTop: 28,
+        marginTop: 24,
         width: '100%',
         alignItems: 'center'
     }

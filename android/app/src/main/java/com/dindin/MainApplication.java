@@ -2,6 +2,7 @@ package com.dindin;
 
 import android.app.Application;
 
+import com.airbnb.android.react.maps.MapsPackage;
 import com.facebook.react.ReactApplication;
 import com.airbnb.android.react.maps.MapsPackage;
 import com.facebook.react.ReactNativeHost;

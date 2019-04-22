@@ -1,13 +1,19 @@
 import React from 'react'
-import {StyleSheet, View, Text, TextInput, TouchableHighlight} from 'react-native'
+import {StyleSheet, View, Text, TextInput, TouchableHighlight, Dimensions} from 'react-native'
 import SwipeTimePicker from 'react-native-swipetimepicker'
 import {Actions} from 'react-native-router-flux'
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
+import MapView from 'react-native-maps'
 
 const time = new Date()
 const hours = time.getHours() > 12 ? time.getHours() - 12 : time.getHours()
 const minutes = time.getMinutes()
 const ampm = time.getHours() > 12 ? true : false
+
+const screen = Dimensions.get('window');
+const ASPECT_RATIO = screen.width / screen.height;
+
+const LATITUDE_DELTA = 0.0922;
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 export default class createEvent extends React.Component{
     constructor(props){
@@ -17,7 +23,22 @@ export default class createEvent extends React.Component{
             minute: minutes,
             ampm: ampm,
             address: "",
+            lat: 0,
+            lng: 0,
+            markerOP: 0.0,
         }
+    }
+
+    updateMap = () => {
+        fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + this.state.address + '&key=AIzaSyD-WGg4J1swtNCC1688tz3CBfDlGedWuPQ')
+            .then(response => response.json())
+            .then(data => {
+                this.setState({
+                    lat: data.results[0].geometry.location.lat,
+                    lng: data.results[0].geometry.location.lng,
+                    markerOP: 1.0
+                })
+            })
     }
 
     handlePress = () => {
@@ -54,19 +75,26 @@ export default class createEvent extends React.Component{
                     placeholder="Choose an address"
                     onChangeText={address => this.setState({ address })}
                     value={this.state.address}
+                    onSubmitEditing={this.updateMap}
                 />
-                {/* <View>
-                    <MapView
-                        provider={PROVIDER_GOOGLE}
-                        style={styles.map}
-                        initialRegion={{ // initial region set to Bileto
-                            latitude: 50.0517273,
-                            longitude: 14.4286503,
-                            latitudeDelta: 0.0922,
-                            longitudeDelta: 0.0421
+                <MapView
+                    style={styles.map}
+                    region={{ // initial region set to Bileto
+                        latitude: this.state.lat,
+                        longitude: this.state.lng,
+                        latitudeDelta: LATITUDE_DELTA,
+                        longitudeDelta: LONGITUDE_DELTA,
+                    }}
+                >
+                    <MapView.Marker
+                        coordinate={{
+                            latitude: this.state.lat,
+                            longitude: this.state.lng,
                         }}
+                        title={this.state.address}
+                        opacity={this.state.markerOp}
                     />
-                </View> */}
+                </MapView>
                 <TouchableHighlight style={styles.buttonContainer} onPress={this.handlePress}>
                     <Text style={styles.button}>Invite People</Text>
                 </TouchableHighlight>
@@ -109,4 +137,11 @@ const styles = StyleSheet.create({
         height: 48,
         width: '100%',
     },  
+    map: {
+        marginTop: 240,
+        flex: 1,
+        height: '50%',
+        ...StyleSheet.absoluteFillObject,
+        bottom: 20,
+    }
 })
