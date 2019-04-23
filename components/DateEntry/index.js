@@ -11,7 +11,35 @@ export default class DateEntry extends React.Component {
     constructor(props){
         super(props)
         this.state = {
-            dinners: []
+            dinners: [],
+            currentMonth: this.props.month
+        }
+    }
+
+    componentWillReceiveProps(nextProps){
+        if(nextProps.month != this.props.month){
+            firebase.database().ref('dinners').on('value', snapshot => {
+                const dinnersObject = snapshot.val()
+                const parsedDinners = []
+    
+                if(dinnersObject){
+                    const dinnersList = Object.keys(dinnersObject).map(key => ({
+                        ...dinnersObject[key],
+                        key: key,
+                    }))
+    
+                    for(var i = 0; i < dinnersList.length; i++){
+                        if(dinnersList[i].status == "accept" && 
+                        dinnersList[i].date == nextProps.date &&
+                        dinnersList[i].month == nextProps.month){
+                            console.log(dinnersList[i].month, this.props.month)
+                            parsedDinners.push(dinnersList[i])
+                        }
+                    }
+    
+                    this.setState({dinners: parsedDinners})
+                }
+            })
         }
     }
 
@@ -30,6 +58,7 @@ export default class DateEntry extends React.Component {
                     if(dinnersList[i].status == "accept" && 
                     dinnersList[i].date == this.props.date &&
                     dinnersList[i].month == this.props.month){
+                        console.log(dinnersList[i].month, this.props.month)
                         parsedDinners.push(dinnersList[i])
                     }
                 }
@@ -43,16 +72,17 @@ export default class DateEntry extends React.Component {
         return(
             <View>
                 <Card 
+                    address={item.address}
+                    ampm={item.ampm}
+                    date={item.date}
+                    day={item.day}
+                    hour={item.hour}
+                    indUid={item.indUid}
+                    minute={item.minute}
+                    month={item.month}
+                    status={item.status}
                     uniqueID={item.key}
                     sender={item.user}
-                    day={item.day}
-                    date={item.date}
-                    month={item.month}
-                    hour={item.hour}
-                    minute={item.minute}
-                    ampm={item.ampm}
-                    address={item.address}
-                    status={item.status}
                 />
             </View>
         )
@@ -60,19 +90,6 @@ export default class DateEntry extends React.Component {
 
 
     render(){
-        // // parse the data 
-
-        // for(var i = 0; i < this.props.dinners.length; i++){
-        //     if(
-        //         this.props.dinners[i].month == this.props.month &&
-        //         this.props.dinners[i].date == this.props.date &&
-        //         this.props.dinners[i].status == "accept"
-        //     ){
-        //         this.state.dinners.push(this.props.dinners[i])
-        //     }
-        // }
-
-
         const eventButton = 
             <TouchableOpacity style={styles.buttonContainer} onPress={() => {
                 Actions.createevent({day: this.props.day, date: this.props.date, month: this.props.month})
@@ -85,6 +102,7 @@ export default class DateEntry extends React.Component {
                 data={this.state.dinners}
                 renderItem={({item}) => this._renderItem(item)}
                 horizontal={true}
+                keyExtractor={(item) => item.uniqueID}
                 ListFooterComponent={eventButton}
             />
 

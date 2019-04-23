@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
-import {StyleSheet, View, Text, Image, TouchableOpacity, FlatList, Dimensions} from 'react-native'
+import {StyleSheet, View, Text, FlatList} from 'react-native'
 import firebase from 'firebase'
-import MapView, {Marker, AnimatedRegion} from 'react-native-maps'
+import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures'
 
 import Card from '../Card'
 import DateEntry from '../DateEntry'
@@ -9,19 +9,11 @@ import DateEntry from '../DateEntry'
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 const months = ["January","February","March","April","May","June","July", "August","September","October","November","December"];
 
-const d = new Date()
-const dayIndex = d.getDay()
-const date = d.getDate()
-const monthIndex = d.getMonth()
-
-const eventButtonPic = '../../static/DINDIN/Sliced/addNewEvent.png'
-
-const screen = Dimensions.get('window');
-
-const ASPECT_RATIO = screen.width / screen.height;
-
-const LATITUDE_DELTA = 0.0922;
-const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
+// current date
+const today = new Date()
+const year = today.getYear() + 1900
+const month = today.getMonth()
+const date = today.getDate()
 
 export default class Home extends Component {
     constructor(props){
@@ -29,12 +21,15 @@ export default class Home extends Component {
         this.state = {
             dinners: [],
             pending: [],
-            lat: 0,
-            lng: 0,
+            daysLeft: [],
+            year: year,
+            month: month,
+            date: date,
         }
     }
 
     componentDidMount(){
+        // load pending cards from firebase
         firebase.database().ref('dinners').on('value', snapshot => {
             const dinnersObject = snapshot.val()
             const parsedDinners = []
@@ -50,13 +45,17 @@ export default class Home extends Component {
                         parsedDinners.push(dinnersList[i])
                     }
                 }
-
-                this.setState({dinners: parsedDinners})
             }
+            this.setState({dinners: parsedDinners})
+
         })
     }
 
-    _renderItem = (item) => {
+    componentWillUnmount(){
+        firebase.database().ref('dinners').off()
+    }
+
+    _renderPending = (item) => {
         return(
             <View>
                 <Card 
@@ -75,80 +74,140 @@ export default class Home extends Component {
         )
     }
 
-    
+    _renderDateEntry = (item) => {
+        return(
+            <View>
+                <DateEntry day={days[item.day]} date={item.date} month={months[this.state.month]}/>
+            </View>
+        )
+    }
+
+    _pendingEmptyComponent = () => {
+        return(
+            <View>
+                <Text>No pending at this time </Text>
+            </View>
+        )
+    }
+
+    onSwipeRight = () => {
+        var prevMonth = this.state.month - 1
+        if(prevMonth == -1){
+            prevMonth = 11
+        }
+        this.setState({
+            month: prevMonth,
+            date: 1,
+        })
+        this.forceUpdate()
+
+    }
+
+    onSwipeLeft = () => {
+        var nextMonth = this.state.month + 1
+        if(nextMonth == 12){
+            nextMonth = 0
+        }
+        this.setState({
+            month: nextMonth,
+            date: 1
+        })
+        this.forceUpdate()
+    }
 
     render() {
+        const daysLeft = []
 
-        // fetch('https://maps.googleapis.com/maps/api/geocode/json?address=1820 Taylor Rd Crozier, VA 23039&key=AIzaSyD-WGg4J1swtNCC1688tz3CBfDlGedWuPQ')
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         this.setState({
-        //             lat: data.results[0].geometry.location.lat,
-        //             lng: data.results[0].geometry.location.lng
-        //         })
-        //     })
+        var stringKey = "a"
 
-        return (
-            <View>
-                <View>
-                    {/* <Text style={styles.headerText}>Welcome {firebase.auth().currentUser.displayName}</Text> */}
-                </View>
-                <View>
-                    <Text style={styles.titleText}>Pending ({this.state.dinners.length})</Text>
-                    {this.state.dinners && this.state.dinners.length > 0 &&
-                        <FlatList
-                            data={this.state.dinners}
-                            renderItem={({item}) => this._renderItem(item)}
-                            horizontal={true}
-                        />
-                    }
-                </View>
-                <View>
-                    <DateEntry day={days[dayIndex]} date={date} month={months[monthIndex]} dinners={this.state.dinners}/>
-                </View>
-                <View>
-                    <DateEntry day={days[dayIndex + 1]} date={date + 1} month={months[monthIndex]} dinners={this.state.dinners}/>
-                </View>
-                <View>
-                    <DateEntry day={days[dayIndex + 2]} date={date + 2} month={months[monthIndex]} dinners={this.state.dinners}/>
-                </View>
-            </View>
+        // load today into variable
+        var today = new Date(this.state.year, this.state.month, this.state.date)
+        // get tomorrow's date
+        var tomorrow = new Date(this.state.year, this.state.month, this.state.date + 1)
 
-                // <MapView
-                //     style={styles.map}
-                //     region={{
-                //         latitude: this.state.lat,
-                //         longitude: this.state.lng,
-                //         latitudeDelta: LATITUDE_DELTA,
-                //         longitudeDelta: LONGITUDE_DELTA,
-                //     }}
-                // >
-                // </MapView>
+        // add today to the list
+        daysLeft.push({
+            date: today.getDate(),
+            day: today.getDay(),
+        })
         
+        // iterate through month to add rest of days
+        while(tomorrow.getMonth() == today.getMonth()){
+            var tempDay = {
+                date: tomorrow.getDate(),
+                day: tomorrow.getDay(),
+            }
+            daysLeft.push(tempDay)
+            tomorrow.setDate(tomorrow.getDate()+1)
+        }
+
+        // set state for list and current month
+        return (
+                <View style={styles.container}>
+                    <GestureRecognizer
+                        onSwipeLeft={this.onSwipeLeft}
+                        onSwipeRight={this.onSwipeRight}
+                    >
+                        <View style={styles.headerContainer}>
+                            <Text style={styles.headerText}>{months[this.state.month]}</Text>
+                        </View>
+                    </GestureRecognizer>
+                    <View style={styles.listContainer}>
+                        <Text style={styles.titleText}>Pending ({this.state.dinners.length})</Text>
+                        {this.state.dinners && this.state.dinners.length > 0 &&
+                            <FlatList
+                                data={this.state.dinners}
+                                renderItem={({item}) => this._renderPending(item)}
+                                horizontal={true}
+                                keyExtractor={item => item.uniqueID}
+                            />
+                        }
+                        {this.state.dinners.length == 0 &&
+                            <Text style={styles.centerText}>No more pending invitations</Text>
+                        }
+                    </View>
+                    <View style={styles.dateEntryContainer}>
+                        <FlatList
+                            data={daysLeft}
+                            renderItem={({item}) => this._renderDateEntry(item)}
+                            keyExtractor={item => item.date.toString()}
+                        />  
+                    </View>
+                </View>
         )
     }
 }
 
 const styles = StyleSheet.create({
     headerText: {
-        fontSize: 18,
-        marginTop: 10,
-        marginLeft: 10,
+        fontSize: 20,
+        alignSelf: 'center',
+        marginTop: 10
     },
     titleText: {
         fontSize: 20,
         marginLeft: 15,
         marginTop: 10,
     },
+    centerText: {
+        alignSelf: 'center',
+        fontSize: 15,
+        marginTop: 70
+    },
+    headerContainer: {
+        width: '100%'
+    },
+    titleTextContainer: {
+        height: '10%'
+    },
     listContainer: {
-        height: 150
+        height: '30%',
+        marginBottom: 15
+    },
+    dateEntryContainer: {
+        height: '60%',
     },
     container: {
         height: '100%'
-    },
-    map: {
-        flex: 1,
-        height: '50%',
-        ...StyleSheet.absoluteFillObject,
     }
 })

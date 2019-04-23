@@ -86,8 +86,11 @@ export default class Invite extends React.Component {
                 status
             })
             const key = ref.key
+            
+            firebase.database().ref('dinners/' + key).update({
+                uniqueID: key,
+            })
 
-            console.log(key)
         }
 
         Actions.replace('home')

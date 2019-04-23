@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {StyleSheet, View, Text, TouchableHighlight} from 'react-native'
 import firebase from 'firebase'
+import {Actions} from 'react-native-router-flux'
 
 const photo = '../../static/DINDIN/Sliced/profile.png'
 
@@ -9,12 +10,30 @@ export default class Card extends Component {
         super(props)
     }
 
+    handlePress = () => {
+        console.log("Hey!")
+        Actions.push('createevent')
+    }
+
     render(){
 
         return(
             <View style={styles.container}>
-                <TouchableHighlight>
-                    <View>
+                <TouchableHighlight onPress={() => {
+                    Actions.eventdetail({
+                        user: this.props.user,
+                        day: this.props.day,
+                        date: this.props.date,
+                        month: this.props.month,
+                        hour: this.props.hour,
+                        minute: this.props.minute,
+                        ampm: this.props.ampm,
+                        address: this.props.address,
+                        status: this.props.status,
+                        uniqueID: this.props.uniqueID,
+                    })
+                }}>
+                    <View style={styles.textCont}>
                         <Text style={styles.cardText}>{this.props.address}</Text>
                         <Text style={styles.cardText}>
                             {this.props.day} {this.props.date} {this.props.month} - {this.props.hour}:{this.props.minute < 10 ? 0 : ''}{this.props.minute} {this.props.ampm ? "pm" : "am"}
@@ -34,7 +53,7 @@ export default class Card extends Component {
                         <TouchableHighlight style={styles.rejectContainer} onPress={() => {
                             console.log(this.props.uniqueID)
                             firebase.database().ref('dinners/' + this.props.uniqueID).update({
-                                status: 'accept'
+                                status: 'reject'
                             })
                         }}>
                             <Text style={styles.reject}>Reject</Text>
@@ -49,8 +68,9 @@ export default class Card extends Component {
 const styles = StyleSheet.create({
     container: {
         justifyContent: 'space-around',
-        marginRight: 10,
-        marginLeft: 10,
+        marginRight: 15,
+        marginLeft: 15,
+        marginBottom: 10,
         padding: 10,
         width: 'auto',
         alignItems: 'stretch',
@@ -64,6 +84,13 @@ const styles = StyleSheet.create({
     },  
     buttonCont: {
         flexDirection: 'row',
+        justifyContent: 'space-around',
+        width: 300,
+        marginTop: 10,
+        marginBottom: 10,
+    },
+    textCont: {
+        flexDirection: 'column',
         justifyContent: 'space-around',
         width: 300,
         marginTop: 10,
