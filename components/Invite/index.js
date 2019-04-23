@@ -65,7 +65,7 @@ export default class Invite extends React.Component {
         }
 
         // push event to firebase
-        const {day, date, month, hour, minute, ampm, address} = this.props
+        const {day, date, month, hour, minute, ampm, address, lat, lng} = this.props
         const status = 'pending'
 
         console.log(invitedUids)
@@ -83,7 +83,9 @@ export default class Invite extends React.Component {
                 minute,
                 ampm,
                 address,
-                status
+                status,
+                lat,
+                lng
             })
             const key = ref.key
             

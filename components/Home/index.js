@@ -25,10 +25,33 @@ export default class Home extends Component {
             year: year,
             month: month,
             date: date,
+            userID: null
         }
     }
 
+    componentWillMount(){
+        firebase.database().ref('users').once('value', snapshot => {
+            const usersObject = snapshot.val()
+            if(usersObject){
+                const usersList = Object.keys(usersObject).map(key => ({
+                    ...usersObject[key],
+                }))
+
+                for(var i = 0; i < usersList.length; i++){
+                    if(firebase.auth().currentUser.displayName == usersList[i].name){
+                        console.log(usersList[i].name)
+                        this.setState({
+                            userID: usersList[i].key
+                        })
+                    }
+                }
+
+            }
+        })
+    }
+
     componentDidMount(){
+
         // load pending cards from firebase
         firebase.database().ref('dinners').on('value', snapshot => {
             const dinnersObject = snapshot.val()
@@ -41,8 +64,10 @@ export default class Home extends Component {
                 }))
 
                 for(var i = 0; i < dinnersList.length; i++){
-                    if(dinnersList[i].status == "pending"){
-                        parsedDinners.push(dinnersList[i])
+                    if(dinnersList[i].indUid == this.state.userID){
+                        if(dinnersList[i].status == "pending"){
+                            parsedDinners.push(dinnersList[i])
+                        }
                     }
                 }
             }
@@ -59,6 +84,7 @@ export default class Home extends Component {
         return(
             <View>
                 <Card 
+                    user={item.user}
                     uniqueID={item.key}
                     sender={item.user}
                     day={item.day}
@@ -69,6 +95,8 @@ export default class Home extends Component {
                     ampm={item.ampm}
                     address={item.address}
                     status={item.status}
+                    lat={item.lat}
+                    lng={item.lng}
                 />
             </View>
         )
@@ -77,7 +105,7 @@ export default class Home extends Component {
     _renderDateEntry = (item) => {
         return(
             <View>
-                <DateEntry day={days[item.day]} date={item.date} month={months[this.state.month]}/>
+                <DateEntry day={days[item.day]} date={item.date} month={months[this.state.month]} userID={this.state.userID}/>
             </View>
         )
     }
@@ -163,10 +191,11 @@ export default class Home extends Component {
                             />
                         }
                         {this.state.dinners.length == 0 &&
-                            <Text style={styles.centerText}>No more pending invitations</Text>
+                            <Text style={styles.centerText}>No pending invitations</Text>
                         }
                     </View>
                     <View style={styles.dateEntryContainer}>
+                        {/* <Text style={styles.titleText}>Invitations</Text> */}
                         <FlatList
                             data={daysLeft}
                             renderItem={({item}) => this._renderDateEntry(item)}
@@ -180,14 +209,14 @@ export default class Home extends Component {
 
 const styles = StyleSheet.create({
     headerText: {
-        fontSize: 20,
+        fontSize: 18,
         alignSelf: 'center',
-        marginTop: 10
+        marginTop: 5
     },
     titleText: {
         fontSize: 20,
         marginLeft: 15,
-        marginTop: 10,
+        marginTop: 0,
     },
     centerText: {
         alignSelf: 'center',
@@ -197,17 +226,16 @@ const styles = StyleSheet.create({
     headerContainer: {
         width: '100%'
     },
-    titleTextContainer: {
-        height: '10%'
-    },
     listContainer: {
         height: '30%',
-        marginBottom: 15
+        marginBottom: 0
     },
     dateEntryContainer: {
         height: '60%',
+        marginBottom: 0,
     },
     container: {
+        flex: 1,
         height: '100%'
     }
 })

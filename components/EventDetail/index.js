@@ -1,8 +1,8 @@
 import React from 'react'
-import {StyleSheet, View, Text, TextInput, TouchableHighlight, Dimensions} from 'react-native'
-import SwipeTimePicker from 'react-native-swipetimepicker'
-import {Actions} from 'react-native-router-flux'
+import {StyleSheet, View, Text, TouchableHighlight, Dimensions} from 'react-native'
 import MapView from 'react-native-maps'
+import firebase from 'firebase'
+import {Actions} from 'react-native-router-flux'
 
 const time = new Date()
 const hours = time.getHours() > 12 ? time.getHours() - 12 : time.getHours()
@@ -25,7 +25,29 @@ export default class createEvent extends React.Component{
             address: "",
             lat: 0,
             lng: 0,
+            hostName: ""
         }
+    }
+
+    componentWillMount(){
+        firebase.database().ref('users').once('value', snapshot => {
+            const usersObject = snapshot.val()
+            if(usersObject){
+                const usersList = Object.keys(usersObject).map(key => ({
+                    ...usersObject[key],
+                }))
+
+                for(var i = 0; i < usersList.length; i++){
+                    if(this.props.user == usersList[i].key){
+                        this.setState({
+                            hostName: usersList[i].name
+                        })
+                    }
+
+                }
+
+            }
+        })
     }
 
     updateMap = () => {
@@ -40,62 +62,58 @@ export default class createEvent extends React.Component{
             })
     }
 
-    handlePress = () => {
-        Actions.invite({
-            day: this.props.day,
-            date: this.props.date,
-            month: this.props.month,
-            hour: this.state.hour,
-            minute: this.state.minute,
-            ampm: this.state.ampm,
-            address: this.state.address
-        })
-    }
-
     render(){
         return(
-            <View style={styles.container}>
-                <Text style={styles.headerText}>What time is dinner?</Text>
-                <SwipeTimePicker
-                    backgroundColor={'#4286f4'}
-                    time={new Date()}
-                    onChange={(time) => {
-                        this.setState({
-                            hour: time.hour,
-                            minute: time.minute,
-                            ampm: time.ampm
-                        })
-                    }}
-                />
-                <Text style={styles.headerText}>Where is dinner?</Text>
-                <TextInput
-                    style={styles.textInput}
-                    autoCapitalize="words"
-                    placeholder="Choose an address"
-                    onChangeText={address => this.setState({ address })}
-                    value={this.state.address}
-                    onSubmitEditing={this.updateMap}
-                />
-                <MapView
-                    style={styles.map}
-                    region={{ // initial region set to Bileto
-                        latitude: this.state.lat,
-                        longitude: this.state.lng,
-                        latitudeDelta: LATITUDE_DELTA,
-                        longitudeDelta: LONGITUDE_DELTA,
-                    }}
-                >
-                    <MapView.Marker
-                        coordinate={{
-                            latitude: this.state.lat,
-                            longitude: this.state.lng,
+            <View style={styles.container}> 
+                <View style={styles.textCont}>
+                    <Text style={styles.cardText}>{this.props.address}</Text>
+                    <Text style={styles.cardText}>
+                        {this.props.day} {this.props.date} {this.props.month} - {this.props.hour}:{this.props.minute < 10 ? 0 : ''}{this.props.minute} {this.props.ampm ? "pm" : "am"}
+                    </Text>
+                    <Text style={styles.cardText}>Hosted by: {this.state.hostName}</Text>
+                </View> 
+                {(this.props.status == "pending" && this.props.userID != this.props.user) && 
+                    <View style={styles.buttonCont}>
+                        <TouchableHighlight style={styles.acceptContainer} onPress={() => {
+                            firebase.database().ref('dinners/' + this.props.uniqueID).update({
+                                status: 'accept'
+                            })
+                            Actions.pop()
+                        }}>
+                            <Text style={styles.accept}>Accept</Text>
+                        </TouchableHighlight>
+                        <TouchableHighlight style={styles.rejectContainer} onPress={() => {
+                            firebase.database().ref('dinners/' + this.props.uniqueID).update({
+                                status: 'reject'
+                            })
+                            Actions.pop()
+                        }}>
+                            <Text style={styles.reject}>Reject</Text>
+                        </TouchableHighlight>
+                    </View>
+                }       
+                {this.props.userID != this.props.user &&       
+                    <MapView
+                        style={styles.map}
+                        region={{ // initial region set to Bileto
+                            latitude: this.props.lat,
+                            longitude: this.props.lng,
+                            latitudeDelta: LATITUDE_DELTA,
+                            longitudeDelta: LONGITUDE_DELTA,
                         }}
-                        title={this.state.address}
-                        opacity={this.state.markerOp}
-                    />
-                </MapView>
+                    >
+                        <MapView.Marker
+                            coordinate={{
+                                latitude: this.props.lat,
+                                longitude: this.props.lng,
+                            }}
+                            title={this.state.address}
+                            opacity={this.state.markerOp}
+                        />
+                    </MapView>
+                }
                 <TouchableHighlight style={styles.buttonContainer} onPress={this.handlePress}>
-                    <Text style={styles.button}>Invite People</Text>
+                    <Text style={styles.button}>Cancel Dinner</Text>
                 </TouchableHighlight>
                 
             </View>
@@ -114,6 +132,11 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginLeft: 10,
     },
+    cardText: {
+        marginTop: 20,
+        fontSize: 20,
+        textAlign: 'center'
+    },
     textInput: {
         height: 40,
         width: '90%',
@@ -128,6 +151,42 @@ const styles = StyleSheet.create({
         color: 'white',
         backgroundColor: '#4286f4',
     },
+    textCont: {
+        flexDirection: 'column',
+        justifyContent: 'space-around',
+        width: 300,
+        marginTop: 10,
+        marginBottom: 10,
+    },
+    buttonCont: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        width: 300,
+        marginTop: 10,
+        marginBottom: 10,
+    },
+    acceptContainer: {
+        width: '30%',
+        alignItems: 'center',
+        backgroundColor: 'green',
+        padding: 10
+    },
+    rejectContainer: {
+        width: '30%',
+        alignItems: 'center',
+        backgroundColor: 'red',
+        padding: 10
+    },
+    accept: {
+        backgroundColor: 'green',
+        color: 'white',
+        textAlign: 'center',
+    },
+    reject: {
+        backgroundColor: 'red',
+        color: 'white',
+        textAlign: 'center',
+    },
     buttonContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -137,10 +196,10 @@ const styles = StyleSheet.create({
         width: '100%',
     },  
     map: {
-        marginTop: 240,
         flex: 1,
-        height: '50%',
+        height: '60%',
         ...StyleSheet.absoluteFillObject,
-        bottom: 20,
+        top: 'auto',
     }
 })
+

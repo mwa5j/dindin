@@ -31,6 +31,9 @@ export default class Card extends Component {
                         address: this.props.address,
                         status: this.props.status,
                         uniqueID: this.props.uniqueID,
+                        lat: this.props.lat,
+                        lng: this.props.lng,
+                        userID: this.props.userID
                     })
                 }}>
                     <View style={styles.textCont}>
@@ -40,7 +43,7 @@ export default class Card extends Component {
                         </Text>
                     </View>
                 </TouchableHighlight>
-                {this.props.status == "pending" && 
+                {(this.props.status == "pending" && this.props.userID != this.props.user) && 
                     <View style={styles.buttonCont}>
                         <TouchableHighlight style={styles.acceptContainer} onPress={() => {
                             console.log(this.props.uniqueID)
@@ -71,7 +74,7 @@ const styles = StyleSheet.create({
         marginRight: 15,
         marginLeft: 15,
         marginBottom: 10,
-        padding: 10,
+        padding: 1,
         width: 'auto',
         alignItems: 'stretch',
         borderStyle: 'solid',

@@ -7,6 +7,7 @@ import Home from './components/Home'
 import Login from './components/Login'
 import SignUp from './components/SignUp'
 import Invite from './components/Invite'
+import EventDetail from './components/EventDetail'
 
 import CreateEvent from './components/CreateEvent'
 import { YellowBox } from 'react-native';
@@ -59,16 +60,16 @@ export default class App extends Component {
       <Router>
         <Scene key="root" headerLayoutPreset="center">
           <Scene
-            key="home"
-            component={Home}
-            title="Home"
-            // initial={firebase.auth().currentUser != null}
-          />
-          <Scene
             key="splash" 
             component={Splash}
             title="Welcome"
             // initial={firebase.auth().currentUser == null}
+          />
+          <Scene
+            key="home"
+            component={Home}
+            title="Home"
+            // initial={firebase.auth().currentUser != null}
           />
           <Scene
             key='invite'
@@ -94,6 +95,11 @@ export default class App extends Component {
           <Scene
             key='createevent'
             component={CreateEvent}
+            title="DinDin"
+          />
+          <Scene
+            key='eventdetail'
+            component={EventDetail}
             title="DinDin"
           />
           

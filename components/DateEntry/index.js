@@ -29,11 +29,13 @@ export default class DateEntry extends React.Component {
                     }))
     
                     for(var i = 0; i < dinnersList.length; i++){
-                        if(dinnersList[i].status == "accept" && 
-                        dinnersList[i].date == nextProps.date &&
-                        dinnersList[i].month == nextProps.month){
-                            console.log(dinnersList[i].month, this.props.month)
-                            parsedDinners.push(dinnersList[i])
+                        console.log(dinnersList[i].indUid, this.props.userID)
+                        if(dinnersList[i].indUid == this.props.userID){
+                            if(dinnersList[i].status == "accept" && 
+                            dinnersList[i].date == nextProps.date &&
+                            dinnersList[i].month == nextProps.month){
+                                parsedDinners.push(dinnersList[i])
+                            }
                         }
                     }
     
@@ -55,11 +57,17 @@ export default class DateEntry extends React.Component {
                 }))
 
                 for(var i = 0; i < dinnersList.length; i++){
-                    if(dinnersList[i].status == "accept" && 
-                    dinnersList[i].date == this.props.date &&
-                    dinnersList[i].month == this.props.month){
-                        console.log(dinnersList[i].month, this.props.month)
-                        parsedDinners.push(dinnersList[i])
+                    if(dinnersList[i].indUid == this.props.userID){
+                        if(dinnersList[i].status == "accept" && 
+                        dinnersList[i].date == this.props.date &&
+                        dinnersList[i].month == this.props.month){
+                            parsedDinners.push(dinnersList[i])
+                        }
+                    } else if(dinnersList[i].user == this.props.userID){
+                        if( dinnersList[i].date == this.props.date &&
+                        dinnersList[i].month == this.props.month){
+                            parsedDinners.push(dinnersList[i])
+                        }
                     }
                 }
 
@@ -81,8 +89,12 @@ export default class DateEntry extends React.Component {
                     minute={item.minute}
                     month={item.month}
                     status={item.status}
+                    user={item.user}
                     uniqueID={item.key}
                     sender={item.user}
+                    lat={item.lat}
+                    lng={item.lng}
+                    userID={this.props.userID}
                 />
             </View>
         )
@@ -120,9 +132,9 @@ export default class DateEntry extends React.Component {
 
 styles = StyleSheet.create({
     titleText: {
-        fontSize: 20,
+        fontSize: 16,
         marginLeft: 15,
-        marginTop: 10,
+        marginTop: 5,
     },
     buttonContainer: {
         marginTop: 24,

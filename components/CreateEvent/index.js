@@ -15,6 +15,7 @@ const ASPECT_RATIO = screen.width / screen.height;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
+
 export default class createEvent extends React.Component{
     constructor(props){
         super(props)
@@ -23,21 +24,24 @@ export default class createEvent extends React.Component{
             minute: minutes,
             ampm: ampm,
             address: "",
-            lat: 0,
-            lng: 0,
-            markerOP: 0.0,
+            lat: 40.7127753,
+            lng: -74.0059728,
+            lock: true
         }
     }
 
-    updateMap = () => {
+    updateMap = async () => {
         fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + this.state.address + '&key=AIzaSyD-WGg4J1swtNCC1688tz3CBfDlGedWuPQ')
             .then(response => response.json())
             .then(data => {
                 this.setState({
                     lat: data.results[0].geometry.location.lat,
                     lng: data.results[0].geometry.location.lng,
-                    markerOP: 1.0
+                    lock: false,
                 })
+                var coordObj = {lat: this.state.lat, lng: this.state.lng}
+                return(coordObj.lat)
+
             })
     }
 
@@ -49,8 +53,10 @@ export default class createEvent extends React.Component{
             hour: this.state.hour,
             minute: this.state.minute,
             ampm: this.state.ampm,
-            address: this.state.address
-        })
+            address: this.state.address,
+            lat: this.state.lat,
+            lng: this.state.lng,
+        })   
     }
 
     render(){
@@ -95,9 +101,11 @@ export default class createEvent extends React.Component{
                         opacity={this.state.markerOp}
                     />
                 </MapView>
-                <TouchableHighlight style={styles.buttonContainer} onPress={this.handlePress}>
-                    <Text style={styles.button}>Invite People</Text>
-                </TouchableHighlight>
+                { !this.state.lock && 
+                    <TouchableHighlight style={styles.buttonContainer} onPress={this.handlePress}>
+                        <Text style={styles.button}>Invite People</Text>
+                    </TouchableHighlight>
+                }
                 
             </View>
         )
@@ -142,6 +150,7 @@ const styles = StyleSheet.create({
         flex: 1,
         height: '50%',
         ...StyleSheet.absoluteFillObject,
-        bottom: 20,
+        bottom: 'auto',
+        top: 'auto'
     }
 })
