@@ -5,9 +5,9 @@ import {Actions} from 'react-native-router-flux'
 import MapView from 'react-native-maps'
 
 const time = new Date()
-const hours = time.getHours() > 12 ? time.getHours() - 12 : time.getHours()
+const hours = time.getHours() >= 12 ? time.getHours() - 12 : time.getHours()
 const minutes = time.getMinutes()
-const ampm = time.getHours() > 12 ? true : false
+const ampm = time.getHours() >= 12 ? true : false
 
 const screen = Dimensions.get('window');
 const ASPECT_RATIO = screen.width / screen.height;

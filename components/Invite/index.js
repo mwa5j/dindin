@@ -142,22 +142,27 @@ export default class Invite extends React.Component {
     }
 
     render(){
+        console.log(this.props.ampm)
         return(
             <View style={styles.container}>
-                <View>
-                    <Text>{this.props.address}</Text>
-                    <Text>{this.props.day} {this.props.date} {this.props.month} - {this.props.hour}:{this.props.minute} {this.props.ampm ? "pm" : "am"}</Text>
+                <View style={styles.textCont}>
+                    <Text style={styles.cardText}>{this.props.address}</Text>
+                    <Text style={styles.cardText}>
+                        {this.props.day} {this.props.date} {this.props.month} - {this.props.hour}:{this.props.minute < 10 ? 0 : ''}{this.props.minute} {this.props.ampm ? "pm" : "am"}
+                    </Text>
+                    <Text style={styles.cardText}>Hosted by: {this.state.hostName}</Text>
                 </View>
-                <View>
+                <View style={styles.flatInvitedContainer}>
                     <Text style={styles.headerText}>Invited</Text>
                     {this.state.invited && this.state.invited.length > 0 && (
                         <FlatList
                             data={this.state.invited}
                             renderItem={({item}) => this._renderInvited(item)}
+
                         />
                     )}
                 </View>
-                <View>
+                <View style={styles.flatContainer}>
                      <Text style={styles.headerText}>Users</Text>
                     {this.state.users && this.state.users.length > 1 && (
                         <FlatList
@@ -188,6 +193,30 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 20,
         color: 'white',
+    },
+    centerText: {
+        alignSelf: 'center',
+        fontSize: 15,
+        marginTop: 70
+    },
+    cardText: {
+        marginTop: 20,
+        fontSize: 20,
+        textAlign: 'center'
+    },
+    textCont: {
+        flexDirection: 'column',
+        justifyContent: 'space-around',
+        width: '100%',
+        marginTop: 10,
+        marginBottom: 10,
+        height: '20%'
+    },
+    flatContainer:{
+        height: '60%'
+    },
+    flatInvitedContainer:{
+        height: '20%'
     },
     submitButton: {
         padding: 20,
